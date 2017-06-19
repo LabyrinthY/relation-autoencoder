@@ -9,6 +9,18 @@ class OieModelFunctions(object):
 
     def __init__(self, rng, featureDim, embedSize, relationNum, argVocSize, model,
                   data, extEmb, extendedReg, alpha):
+        """
+        :param rng: RandomState 
+        :param featureDim: 
+        :param embedSize: 
+        :param relationNum: 
+        :param argVocSize: int - entity number
+        :param model: str - "A" "C" or "AC"
+        :param data: DatasetManager
+        :param extEmb: bool external embeddings
+        :param extendedReg: 
+        :param alpha: 
+        """
         self.rng = rng
 
         self.h = featureDim

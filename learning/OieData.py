@@ -175,10 +175,16 @@ class DataSetManager:
 
 
     def getArgVocSize(self):
+        """
+        :return: int - entity number 
+        """
         return len(self.arg2Id)
 
 
     def getDimensionality(self):
+        """
+        :return: int - feature dimension 
+        """
         return self.featureLex.getDimensionality()
 
     def getNegNum(self):

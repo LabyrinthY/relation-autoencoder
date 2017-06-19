@@ -27,6 +27,26 @@ class ReconstructInducer(object):
     def __init__(self, data, goldStandard, rand, epochNum, learningRate, batchSize, embedSize, lambdaL1, lambdaL2,
                  optimization, modelName, model, fixedSampling, extEmb, extendedReg,
                  frequentEval, alpha):
+        """
+        
+        :param data: DataSetManager - indexedData
+        :param goldStandard: dict of dict of relation label
+        :param rand:  RandomState - random number generator
+        :param epochNum: int 
+        :param learningRate: float
+        :param batchSize:  int 
+        :param embedSize: int
+        :param lambdaL1: float
+        :param lambdaL2: float
+        :param optimization: int - help='optimization algorithm 0 SGD, 1 ADAGrad, 2 ADADelta. Default SDG.'
+        :param modelName: str - Name or ID of the model
+        :param model: str - 'Model Type choose among A, C, AC.'
+        :param fixedSampling: bool = help='fixed/dynamic sampling switch, default fixed sampling'
+        :param extEmb: bool - help='external embeddings, default False'
+        :param extendedReg: bool - help='extended regularization on reconstruction parameters, default false'
+        :param frequentEval: bool help='using frequent evaluation, default False'
+        :param alpha: float help='alpha coefficient for scaling the entropy term') 
+        """
         self.rand = rand
         self.data = data
         self.goldStandard = goldStandard
@@ -633,7 +653,7 @@ def getCommandArgs():
                         help='external embeddings, default False')
 
     parser.add_argument('--extended_reg', metavar='extended_reg', nargs='?', default='False',
-                        help='extended regularization on reconstruction parameters, default False')
+                        help='extended regularization on reconstruction parameters, default false')
 
     parser.add_argument('--frequent_eval', metavar='frequent_eval', nargs='?', default='False',
                         help='using frequent evaluation, default False')
@@ -646,9 +666,6 @@ def getCommandArgs():
 
 
     return parser.parse_args()
-
-
-
 
 
 if __name__ == '__main__':
