@@ -11,7 +11,6 @@ import cPickle as pickle
 class Bilinear(object):
 
     def __init__(self, rng, embedSize, relationNum, argVocSize, data, ex_emb):
-
         self.k = embedSize
         self.r = relationNum
         self.a = argVocSize
@@ -20,18 +19,18 @@ class Bilinear(object):
         k = self.k
         r = self.r
 
-
-
-        # KxK matrix for each argument-argument for each relation
+        # KxKxR matrix for each argument-argument for each relation
         CNP = np.asarray(rng.normal(0, math.sqrt(0.1), size=(k, k, r)), dtype=theano.config.floatX)
 
-
+        # k* k *r: relation matrices
         self.C = theano.shared(value=CNP, name='C')
         # self.C = theano.printing.Print("C = ")(self.C)
                 # argument embeddings
+        # [entityNum, entityDim]
         ANP = np.asarray(rng.uniform(-0.01, 0.01, size=(a, k)), dtype=theano.config.floatX)
 
         if ex_emb:
+            # Average of word embeddings
             import gensim
             external_embeddings = gensim.models.Word2Vec.load(settings.external_embeddings_path)
             for idArg in xrange(self.a):
@@ -48,8 +47,9 @@ class Bilinear(object):
         self.A = theano.shared(value=ANP, name='A')  # (a1, k)
 
         self.Ab = theano.shared(value=np.zeros(a,  dtype=theano.config.floatX),  # @UndefinedVariable
-                                 name='Ab', borrow=True)
+                name='Ab', borrow=True)
 
+        # Normalize Entity Embeddings
         self.updates = OrderedDict({self.A: self.A / T.sqrt(T.sum(T.sqr(self.A), axis=0))})
         self.normalize = theano.function([], [], updates=self.updates)
 
@@ -61,6 +61,7 @@ class Bilinear(object):
     def factorization(self, batchSize, argsEmbA, argsEmbB, wC):
 
         # first = T.tensordot(relationProbs, self.C, axes=[[1], [2]])  # [l,r] * [k,k,r] = [l, k, k]
+        # http://deeplearning.net/software/theano/library/tensor/basic.html#theano.tensor.batched_tensordot
         Afirst = T.batched_tensordot(wC, argsEmbA, axes=[[1], [1]])  # [l, k, k] * [l, k] = [l, k]
         Asecond = T.batched_dot(Afirst, argsEmbB)  # [l, k] * [l, k] = [l]
         # entropy = T.sum(T.log(relationProbs) * relationProbs, axis=1)  # [l,r] * [l,r] = [l]
@@ -80,14 +81,23 @@ class Bilinear(object):
 
 
     def getScores(self, args1, args2, l, n, relationProbs, neg1, neg2, entropy):
+        """
+        relationProbs:
+        l: batch size
+        n:
+        """
         argembed1 = self.A[args1]
         argembed2 = self.A[args2]
 
+        # http://deeplearning.net/software/theano/library/tensor/basic.html#linear-algebra
+        # l*k*k tensor
+        # same as ... axes=[1,2])
+        # Todo: why can be weighted sum here?
         weightedC = T.tensordot(relationProbs, self.C, axes=[[1], [2]])
         one = self.factorization(batchSize=l,
-                                 argsEmbA=argembed1,
-                                 argsEmbB=argembed2,
-                                 wC=weightedC)  # [l,n]
+                argsEmbA=argembed1,
+                argsEmbB=argembed2,
+                wC=weightedC)  # [l,n]
 
         u = T.concatenate([one + self.Ab[args1], one + self.Ab[args2]])
 
@@ -100,17 +110,17 @@ class Bilinear(object):
         negembed1 = self.A[neg1.flatten()].reshape((n, l, self.k))
         negembed2 = self.A[neg2.flatten()].reshape((n, l, self.k))
         negOne = self.negFactorization1(batchSize=l,
-                                        negEmbA=negembed1,
-                                        argsEmbB=argembed2,
-                                        wC=weightedC)
+                negEmbA=negembed1,
+                argsEmbB=argembed2,
+                wC=weightedC)
 
         negTwo = self.negFactorization2(batchSize=l,
-                                        argsEmbA=argembed1,
-                                        negEmbB=negembed2,
-                                        wC=weightedC)
+                argsEmbA=argembed1,
+                negEmbB=negembed2,
+                wC=weightedC)
 
         g = T.concatenate([negOne + self.Ab[neg1].dimshuffle(1, 0),
-                           negTwo + self.Ab[neg2].dimshuffle(1, 0)])
+            negTwo + self.Ab[neg2].dimshuffle(1, 0)])
         logScores = T.log(T.nnet.sigmoid(-g))
         allScores = T.concatenate([allScores, logScores.flatten()])
         return allScores

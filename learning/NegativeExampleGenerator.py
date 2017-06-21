@@ -6,6 +6,7 @@ import numpy as np
 
 class NegativeExampleGenerator(object):
     def __init__(self, rand, negSamplingCum):
+        # negSamplingCum: list of float, for faster sample
         self._rand = rand
         self._negSamplingCum = negSamplingCum
         # self._neg2SamplingCum = neg2SamplingCum
@@ -21,6 +22,7 @@ class NegativeExampleGenerator(object):
         n = negativeExampleNum  # number of negative examples generated per instance
 
         negativeArgs = np.zeros((n, l), dtype=np.int32)
+        # Todo: change to concatenate
         for instance_idx in xrange(l):
             samples = self._univariate_distr_sample(n)
             for negNum_idx in xrange(n):

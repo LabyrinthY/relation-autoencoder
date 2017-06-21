@@ -10,27 +10,27 @@ class OieModelFunctions(object):
     def __init__(self, rng, featureDim, embedSize, relationNum, argVocSize, model,
                   data, extEmb, extendedReg, alpha):
         """
-        :param rng: RandomState 
-        :param featureDim: 
-        :param embedSize: 
-        :param relationNum: 
+        :param rng: RandomState
+        :param featureDim:
+        :param embedSize:
+        :param relationNum:
         :param argVocSize: int - entity number
         :param model: str - "A" "C" or "AC"
         :param data: DatasetManager
         :param extEmb: bool external embeddings
-        :param extendedReg: 
-        :param alpha: 
+        :param extendedReg:
+        :param alpha:
         """
         self.rng = rng
 
         self.h = featureDim
         self.k = embedSize
         self.r = relationNum
-        
+
         self.a = argVocSize
         self.model = model
         self.relationClassifiers = IndependentRelationClassifiers(rng, featureDim, relationNum)
-        self.params = self.relationClassifiers.params
+        self.params = self.relationClassifiers.params # list of theano.shared()
         self.alpha = alpha
         print 'Feature space size =', self.h
         print 'Argument vocabulary size =', argVocSize
@@ -43,7 +43,7 @@ class OieModelFunctions(object):
             print 'Bilinear Model'
             from models.decoders.Bilinear import Bilinear
 
-            self.argProjector = Bilinear(rng, embedSize, relationNum, self.a, data, extEmb)
+            self.argProjector = Bilinear(rng, embedSize, relationNum, self.a, data, extEmb) # decoder
             self.params += self.argProjector.params
             if extendedReg:
                 self.L1 += T.sum(abs(self.argProjector.C))

@@ -28,13 +28,13 @@ class ReconstructInducer(object):
                  optimization, modelName, model, fixedSampling, extEmb, extendedReg,
                  frequentEval, alpha):
         """
-        
+
         :param data: DataSetManager - indexedData
         :param goldStandard: dict of dict of relation label
         :param rand:  RandomState - random number generator
-        :param epochNum: int 
+        :param epochNum: int
         :param learningRate: float
-        :param batchSize:  int 
+        :param batchSize:  int
         :param embedSize: int
         :param lambdaL1: float
         :param lambdaL2: float
@@ -45,7 +45,7 @@ class ReconstructInducer(object):
         :param extEmb: bool - help='external embeddings, default False'
         :param extendedReg: bool - help='extended regularization on reconstruction parameters, default false'
         :param frequentEval: bool help='using frequent evaluation, default False'
-        :param alpha: float help='alpha coefficient for scaling the entropy term') 
+        :param alpha: float help='alpha coefficient for scaling the entropy term')
         """
         self.rand = rand
         self.data = data
@@ -74,7 +74,7 @@ class ReconstructInducer(object):
         self.batchSize = batchSize
         self.lambdaL1 = lambdaL1
         self.lambdaL2 = lambdaL2
-        self.fixedSampling = fixedSampling
+        self.fixedSampling = fixedSampling # bool
         self.negativeSampler = NegativeExampleGenerator(rand, data.getNegSamplingCum())
         self.accumulator = []
 
@@ -118,7 +118,7 @@ class ReconstructInducer(object):
         neg2 = T.imatrix()  # n, l
 
         print "Starting to build train err computation (not compiling it yet)"
-        adjust = float(batchSize) / float(trainDataNP.args1.shape[0])
+        adjust = float(batchSize) / float(trainDataNP.args1.shape[0])  # 1/batchnum
 
         cost = self.modelFunc.buildTrainErrComputation(batchSize, self.data.getNegNum(),
                                                            xFeats, args1, args2, neg1, neg2) + \

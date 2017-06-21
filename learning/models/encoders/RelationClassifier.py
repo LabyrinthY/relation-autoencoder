@@ -51,6 +51,7 @@ class IndependentRelationClassifiers(object):
         # self.Wb = theano.printing.Print("Wb ") (self.Wb)
         # self.W = theano.printing.Print("W ") (self.W)
         # scores of each role by a classifier
+        # l: batch size
         relationScores = sparse.dot(xFeats, self.W) + self.Wb  # [l, h] x [h, r] => [l, r]
         # relationScores = theano.printing.Print("relationScores=")(relationScores)
 
