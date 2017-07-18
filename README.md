@@ -30,8 +30,8 @@ relation between the two entities if any (used only for evaluation)
 
 In order to create the dataset you need the OiePreprocessor.py script once for each dataset partition: train, dev, and test.
 <pre><code>
-python processing/OiePreprocessor.py --batch-name train data-sample.txt sample.pk 
-python processing/OiePreprocessor.py --batch-name dev data-sample.txt sample.pk
+python processing/OiePreprocessor.py --batch-name train data-sample.txt sample.pk;
+python processing/OiePreprocessor.py --batch-name dev data-sample.txt sample.pk;
 python processing/OiePreprocessor.py --batch-name test data-sample.txt sample.pk
 </code></pre>
 

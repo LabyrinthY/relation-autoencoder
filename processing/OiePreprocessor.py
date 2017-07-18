@@ -1,7 +1,7 @@
 """
-    Preprocessor, 
-    Useage: 
-        python processing/OiePreprocessor.py --batch-name train data-sample.txt sample.pk 
+    Preprocessor,
+    Useage:
+        python processing/OiePreprocessor.py --batch-name train data-sample.txt sample.pk
         python processing/OiePreprocessor.py --batch-name dev data-sample.txt sample.pk
         python processing/OiePreprocessor.py --batch-name test data-sample.txt sample.pk
     sample.pk:
@@ -119,10 +119,10 @@ def getFeaturesThreshold(lexicon, featureExs, info, arg1=None, arg2=None, expand
     :param lexicon:  FeatureLexicon
     :param featureExs: feature extractors
     :param info: features
-    :param arg1: entity1 
+    :param arg1: entity1
     :param arg2: entity2
     :param expand: True (always)
-    :param threshold: 
+    :param threshold:
     :return: list of feature id s, all the features is furned, i.e. freq > threshold.
     """
     feats = []
@@ -177,9 +177,9 @@ def prepareArgParser():
 
 def loadExamples(fileName):
     """
-    load examples 
-    :param fileName: 
-    :return: [token, feature1,..., feature9], all str 
+    load examples
+    :param fileName:
+    :return: [token, feature1,..., feature9], all str
     """
     count = 0
     with open(fileName, 'r') as fp:
@@ -273,6 +273,7 @@ if __name__ == '__main__':
 
     reIdx = 0
     c = 0 # re id
+    # Todo: it will double each frequency because dev+test shares same data as train
     for re in relationExamples:
         getFeatures(relationLexicon, featureExtrs, [re[1], re[4], re[5], re[7], re[8], re[6]],
                     re[2], re[3], True)

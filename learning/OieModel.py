@@ -84,6 +84,7 @@ class OieModelFunctions(object):
 
         entropy = self.alpha * -T.sum(T.log(relationProbs) * relationProbs, axis=1)  # [l,r] * [l,r] = [l]
 
+        # isn't it all the same?
         if self.model == 'A':
             allScores = self.argProjector.getScores(args1, args2, l, n, relationProbs, neg1, neg2, entropy)
 
@@ -105,10 +106,16 @@ class OieModelFunctions(object):
 
 
     def buildLabelComputation(self, batchSize, xFeats):
+        """
+        :param batchsize:
+        :param xFeats:
+        :return:(labels, relationProbs), ([l],[l, r])
+        """
         #  xFeats [ l * e, h ] matrix
         return self.relationClassifiers.labelFunct(batchSize, xFeats)
 
 
     def buildRelationProbComputation(self, batchSize, xFeats):
         return self.relationClassifiers.compRelationProbsFunc(xFeats)
+
 
