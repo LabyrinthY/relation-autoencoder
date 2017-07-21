@@ -1,12 +1,12 @@
 __author__ = 'diego'
 
-
 import math as m
 import numpy as np
 import scipy.sparse as sp
 import theano
 from definitions import settings
 import cPickle as pickle
+
 
 class MatrixDataSet:
     # matrix formatted dataset
@@ -26,9 +26,6 @@ class MatrixDataSetNoEncoding:
         self.realProbs = realProbs  # (l, r)
 
 
-
-
-
 class DataSetManager:
     """
     Attributes:
@@ -45,13 +42,14 @@ class DataSetManager:
         'relationNum', int: relation number
         'trainExs',OieData.MatrixDataSet:
     """
+
     def __init__(self, oieDataset, featureLex, rng, negSamplesNum, relationNum, negSamplingDistrPower=0.75):
 
         self.negSamplesNum = negSamplesNum  # the number of negative samples considered
 
         self.negSamplingDistrPower = negSamplingDistrPower  # the sampling distribution for negative sampling
 
-        self.rng = rng # random number generator
+        self.rng = rng  # random number generator
 
         self.relationNum = relationNum  # relation number
 
@@ -81,7 +79,6 @@ class DataSetManager:
         idx = cutoffs.searchsorted(self.rng.uniform(0, cutoffs[-1]))
         return idx
 
-
     def _sample1(self, distr):
 
         # check numpy, it should have some efficient ways to sample from multinomials
@@ -93,7 +90,6 @@ class DataSetManager:
                 return idx
         return len(distr) - 1
 
-
     def _extractExamples(self, oieExamples):
 
         l = len(oieExamples)
@@ -102,15 +98,14 @@ class DataSetManager:
         args1 = np.zeros(l, dtype=np.int32)  # entity1 ids
         args2 = np.zeros(l, dtype=np.int32)  # entity2 ids
 
-
-        neg1 = np.zeros((n, l), dtype=np.int32)  # negative samples for the dataset: is it fixed? or change among different iteration?
+        neg1 = np.zeros((n, l),
+                        dtype=np.int32)  # negative samples for the dataset: is it fixed? or change among different iteration?
         neg2 = np.zeros((n, l), dtype=np.int32)  #
-
 
         # print self.featureLex.getDimensionality()
         # l * feature_dim 0-1 matrix.
         xFeatsDok = sp.dok_matrix((l, self.featureLex.getDimensionality()), dtype=theano.config.floatX)
-                                                                          #  @UndefinedVariable float32
+        #  @UndefinedVariable float32
 
         for i, oieEx in enumerate(oieExamples):
             args1[i] = self.arg2Id[oieEx.arg1]
@@ -126,8 +121,6 @@ class DataSetManager:
 
             for k in xrange(n):
                 neg2[k, i] = self._sample(self.negSamplingCum)
-            
-
 
         xFeats = sp.csr_matrix(xFeatsDok, dtype="float32")
 
@@ -147,7 +140,7 @@ class DataSetManager:
     def _extractArgsMappings(self, oieDataset):
 
         # sets id2Arg1, id2Arg2, arg12Id, arg22Id, neg1SamplingDistr, neg2SamplingDistr
-        argFreqs = {} # frequency of unique entity
+        argFreqs = {}  # frequency of unique entity
         for key in oieDataset:  # key: 'train', 'test' ... Todo: is he count test set?
             for oieEx in oieDataset[key]:  # here it iterates over train, test, dev. oieEx: OieExample
                 if oieEx.arg1 not in argFreqs:
@@ -160,26 +153,24 @@ class DataSetManager:
                 else:
                     argFreqs[oieEx.arg2] += 1
 
-
-
         self.id2Arg, self.arg2Id = self._indexElements(argFreqs)
 
         # Todo: can rewrite by numpy
-        argSampFreqs = [float(argFreqs[self.id2Arg[val]]) for val in xrange(len(self.id2Arg))]  # id to freq, list of float
-        argSampFreqsPowered = map(lambda x: m.pow(x, self.negSamplingDistrPower),  argSampFreqs)  # seems same as mikolove
-        norm1 = reduce(lambda x, y: x + y,  argSampFreqsPowered)  # sum of argSampFreqsPowered
-        self.negSamplingDistr = map(lambda x: x / norm1, argSampFreqsPowered)  # divide norm, the probability for each entity id
-        self.negSamplingCum = np.cumsum(self.negSamplingDistr)  # like the stick beark position for calculating probability.
-
-
-
+        argSampFreqs = [float(argFreqs[self.id2Arg[val]]) for val in
+                        xrange(len(self.id2Arg))]  # id to freq, list of float
+        argSampFreqsPowered = map(lambda x: m.pow(x, self.negSamplingDistrPower),
+                                  argSampFreqs)  # seems same as mikolove
+        norm1 = reduce(lambda x, y: x + y, argSampFreqsPowered)  # sum of argSampFreqsPowered
+        self.negSamplingDistr = map(lambda x: x / norm1,
+                                    argSampFreqsPowered)  # divide norm, the probability for each entity id
+        self.negSamplingCum = np.cumsum(
+            self.negSamplingDistr)  # like the stick beark position for calculating probability.
 
     def getArgVocSize(self):
         """
         :return: int - entity number 
         """
         return len(self.arg2Id)
-
 
     def getDimensionality(self):
         """
@@ -207,11 +198,11 @@ class DataSetManager:
         for e in self.trainExs.xFeats[id].nonzero()[1]:
             feat = self.featureLex.getStrPruned(e)
             if (self.featureLex.getStrPruned(e).find('trigger') > -1 or
-                self.featureLex.getStrPruned(e).find('arg1') > -1 or
-                self.featureLex.getStrPruned(e).find('arg2') > -1):
+                        self.featureLex.getStrPruned(e).find('arg1') > -1 or
+                        self.featureLex.getStrPruned(e).find('arg2') > -1):
                 a.append(feat)
-            # else:  # only for debugging purposes, should be commented
-            #     a.append(feat)
+                # else:  # only for debugging purposes, should be commented
+                #     a.append(feat)
         return a
 
     def getExampleFeature(self, id, feature):
@@ -237,6 +228,3 @@ class DataSetManager:
 
     def getNegSamplingCum(self):
         return self.negSamplingCum
-
-
-

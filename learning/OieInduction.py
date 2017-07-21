@@ -22,8 +22,8 @@ import definitions.settings as settings
 from learning.NegativeExampleGenerator import NegativeExampleGenerator
 from collections import OrderedDict
 
-class ReconstructInducer(object):
 
+class ReconstructInducer(object):
     def __init__(self, data, goldStandard, rand, epochNum, learningRate, batchSize, embedSize, lambdaL1, lambdaL2,
                  optimization, modelName, model, fixedSampling, extEmb, extendedReg,
                  frequentEval, alpha):
@@ -59,12 +59,12 @@ class ReconstructInducer(object):
         self.frequentEval = frequentEval
         self.alpha = alpha
 
-        self.modelID = model + '_' + modelName+'_maxepoch'+str(epochNum)+'_lr'+str(learningRate)\
-                        + '_embedsize' + str(embedSize) + '_l1' + str(lambdaL1) + '_l2' + str(lambdaL2) \
-                        + '_opt' + str(optimization) + '_rel_num' + str(self.relationNum)+ \
+        self.modelID = model + '_' + modelName + '_maxepoch' + str(epochNum) + '_lr' + str(learningRate) \
+                       + '_embedsize' + str(embedSize) + '_l1' + str(lambdaL1) + '_l2' + str(lambdaL2) \
+                       + '_opt' + str(optimization) + '_rel_num' + str(self.relationNum) + \
                        '_batch' + str(batchSize) + '_negs' + str(data.negSamplesNum)
 
-        self.modelFunc = OieModelFunctions(rand, data.getDimensionality(), embedSize,  self.relationNum,
+        self.modelFunc = OieModelFunctions(rand, data.getDimensionality(), embedSize, self.relationNum,
                                            data.getArgVocSize(), model, self.data, self.extEmb, self.extendedReg,
                                            self.alpha)
 
@@ -74,23 +74,20 @@ class ReconstructInducer(object):
         self.batchSize = batchSize
         self.lambdaL1 = lambdaL1
         self.lambdaL2 = lambdaL2
-        self.fixedSampling = fixedSampling # bool
+        self.fixedSampling = fixedSampling  # bool
         self.negativeSampler = NegativeExampleGenerator(rand, data.getNegSamplingCum())
         self.accumulator = []
-
-
 
     def _makeShared(self, matrixDataset, borrow=True):
 
         sharedMatrix = MatrixDataSet(
-                arguments1=theano.shared(matrixDataset.args1, borrow=borrow),
-                arguments2=theano.shared(matrixDataset.args2, borrow=borrow),
-                argFeatures=theano.shared(matrixDataset.xFeats, borrow=borrow),
-                negArgs1=theano.shared(matrixDataset.neg1, borrow=borrow),
-                negArgs2=theano.shared(matrixDataset.neg2, borrow=borrow)
+            arguments1=theano.shared(matrixDataset.args1, borrow=borrow),
+            arguments2=theano.shared(matrixDataset.args2, borrow=borrow),
+            argFeatures=theano.shared(matrixDataset.xFeats, borrow=borrow),
+            negArgs1=theano.shared(matrixDataset.neg1, borrow=borrow),
+            negArgs2=theano.shared(matrixDataset.neg2, borrow=borrow)
         )
         return sharedMatrix
-
 
     def compileFunction(self, learningRate, epochNum, batchSize, lambda1, lambda2):
 
@@ -121,9 +118,9 @@ class ReconstructInducer(object):
         adjust = float(batchSize) / float(trainDataNP.args1.shape[0])  # 1/batchnum
 
         cost = self.modelFunc.buildTrainErrComputation(batchSize, self.data.getNegNum(),
-                                                           xFeats, args1, args2, neg1, neg2) + \
-                       (lambda1 * self.modelFunc.L1 * adjust) + \
-                       (lambda2 * self.modelFunc.L2 * adjust)
+                                                       xFeats, args1, args2, neg1, neg2) + \
+               (lambda1 * self.modelFunc.L1 * adjust) + \
+               (lambda2 * self.modelFunc.L2 * adjust)
 
         if self.optimization == 1:
             from learning.Optimizers import AdaGrad
@@ -141,40 +138,38 @@ class ReconstructInducer(object):
             sgd = SGD()
             updates = sgd.update(self.learningRate, self.modelFunc.params, cost)
 
-
-
         print "Compiling train function..."
-
-
 
         trainModel = theano.function(inputs=[batchIdx, neg1, neg2],
                                      outputs=cost,
                                      updates=updates,
                                      givens={
-                xFeats: trainData.xFeats[batchIdx * batchSize: (batchIdx + 1) * batchSize],
-                args1: trainData.args1[batchIdx * batchSize: (batchIdx + 1) * batchSize],
-                args2: trainData.args2[batchIdx * batchSize: (batchIdx + 1) * batchSize]
+                                         xFeats: trainData.xFeats[batchIdx * batchSize: (batchIdx + 1) * batchSize],
+                                         args1: trainData.args1[batchIdx * batchSize: (batchIdx + 1) * batchSize],
+                                         args2: trainData.args2[batchIdx * batchSize: (batchIdx + 1) * batchSize]
                                      }
-            )
+                                     )
         if False:
             trainEncoder = theano.function(inputs=[batchIdx, neg1, neg2],
-                                     outputs=cost,
-                                     updates=updatesEncoder,
-                                     givens={
-                xFeats: trainData.xFeats[batchIdx * batchSize: (batchIdx + 1) * batchSize],
-                args1: trainData.args1[batchIdx * batchSize: (batchIdx + 1) * batchSize],
-                args2: trainData.args2[batchIdx * batchSize: (batchIdx + 1) * batchSize]
-                                     }
-            )
+                                           outputs=cost,
+                                           updates=updatesEncoder,
+                                           givens={
+                                               xFeats: trainData.xFeats[
+                                                       batchIdx * batchSize: (batchIdx + 1) * batchSize],
+                                               args1: trainData.args1[batchIdx * batchSize: (batchIdx + 1) * batchSize],
+                                               args2: trainData.args2[batchIdx * batchSize: (batchIdx + 1) * batchSize]
+                                           }
+                                           )
             trainDecoder = theano.function(inputs=[batchIdx, neg1, neg2],
-                                     outputs=cost,
-                                     updates=updatesDecoder,
-                                     givens={
-                xFeats: trainData.xFeats[batchIdx * batchSize: (batchIdx + 1) * batchSize],
-                args1: trainData.args1[batchIdx * batchSize: (batchIdx + 1) * batchSize],
-                args2: trainData.args2[batchIdx * batchSize: (batchIdx + 1) * batchSize]
-                                     }
-            )
+                                           outputs=cost,
+                                           updates=updatesDecoder,
+                                           givens={
+                                               xFeats: trainData.xFeats[
+                                                       batchIdx * batchSize: (batchIdx + 1) * batchSize],
+                                               args1: trainData.args1[batchIdx * batchSize: (batchIdx + 1) * batchSize],
+                                               args2: trainData.args2[batchIdx * batchSize: (batchIdx + 1) * batchSize]
+                                           }
+                                           )
 
         prediction = self.modelFunc.buildLabelComputation(batchSize, xFeats)
 
@@ -183,7 +178,7 @@ class ReconstructInducer(object):
                                      outputs=prediction,
                                      updates=[],
                                      givens={
-                xFeats: trainData.xFeats[batchIdx * batchSize:(batchIdx + 1) * batchSize]})
+                                         xFeats: trainData.xFeats[batchIdx * batchSize:(batchIdx + 1) * batchSize]})
 
         if validDataNP is not None:
             print "Compiling label function (for validation)..."
@@ -195,11 +190,10 @@ class ReconstructInducer(object):
         if testDataNP is not None:
             print "Compiling label function (for test)..."
             labelTest = theano.function(inputs=[batchIdx],
-                                         outputs=prediction,
-                                         updates=[],
-                                         givens={xFeats: testData.xFeats[batchIdx * batchSize:
-                                         (batchIdx + 1) * batchSize]})
-
+                                        outputs=prediction,
+                                        updates=[],
+                                        givens={xFeats: testData.xFeats[batchIdx * batchSize:
+                                        (batchIdx + 1) * batchSize]})
 
         print "Done with compiling function."
         if validDataNP is not None and testDataNP is not None:
@@ -218,18 +212,17 @@ class ReconstructInducer(object):
 
         print "Starting to compile functions"
 
-
         if validDataNP is not None and testDataNP is not None:
             trainModel, labelTest, labelValid = self.compileFunction(self.learningRate, self.epochNum,
-                                                                 self.batchSize, self.lambdaL1, self.lambdaL2)
+                                                                     self.batchSize, self.lambdaL1, self.lambdaL2)
         else:
             if False:
                 trainEncoder, trainDecoder, labelTrain = self.compileFunction(self.learningRate, self.epochNum,
-                                                      self.batchSize, self.lambdaL1, self.lambdaL2)
+                                                                              self.batchSize, self.lambdaL1,
+                                                                              self.lambdaL2)
             else:
                 trainModel, labelTrain = self.compileFunction(self.learningRate, self.epochNum,
-                                                      self.batchSize, self.lambdaL1, self.lambdaL2)
-
+                                                              self.batchSize, self.lambdaL1, self.lambdaL2)
 
         ###############
         # TRAIN MODEL #
@@ -255,7 +248,6 @@ class ReconstructInducer(object):
         doneLooping = False
         epoch = 0
 
-
         while (epoch < self.epochNum) and (not doneLooping):
             negativeSamples1 = self.negativeSampler.generate_random_negative_example(trainDataNP.args1,
                                                                                      self.data.getNegNum())
@@ -274,7 +266,6 @@ class ReconstructInducer(object):
                 else:
                     neg1 = trainDataNP.neg1[:, idx * self.batchSize: (idx + 1) * self.batchSize]
                     neg2 = trainDataNP.neg2[:, idx * self.batchSize: (idx + 1) * self.batchSize]
-
 
                 ls = trainModel(idx, neg1, neg2)
                 err += ls
@@ -300,7 +291,6 @@ class ReconstructInducer(object):
                         print trainClusters
                         print
 
-
             epochEndTime = time.clock()
 
             print 'Training error ', str(err)
@@ -323,9 +313,9 @@ class ReconstructInducer(object):
                 else:
                     getClustersWithFrequencies(trainClusters, self.data, settings.elems_to_visualize)
                 if not settings.debug:
-                    pickleClustering(trainClusters, self.modelID+'_epoch'+str(epoch))
+                    pickleClustering(trainClusters, self.modelID + '_epoch' + str(epoch))
                     if epoch % 5 == 0 and epoch > 0:
-                        picklePosteriors(trainPosteriors, self.modelID+'_Posteriors_epoch'+str(epoch))
+                        picklePosteriors(trainPosteriors, self.modelID + '_Posteriors_epoch' + str(epoch))
 
             if validDataNP is not None and testDataNP is not None:
 
@@ -336,9 +326,9 @@ class ReconstructInducer(object):
                 validEval.printEvaluation('Validation')
                 getClustersWithFrequenciesValid(validCluster, self.data, settings.elems_to_visualize)
                 if not settings.debug:
-                    pickleClustering(validCluster, self.modelID+'_epoch'+str(epoch)+'_valid')
+                    pickleClustering(validCluster, self.modelID + '_epoch' + str(epoch) + '_valid')
                     if epoch % 5 == 0 and epoch > 0:
-                        picklePosteriors(validPosteriors, self.modelID+'_Posteriors_epoch'+str(epoch)+'_valid')
+                        picklePosteriors(validPosteriors, self.modelID + '_Posteriors_epoch' + str(epoch) + '_valid')
 
                 testCluster = self.getClustersSets(labelTest, testBatchNum)
                 posteriorsTest = [labelTest(i)[1] for i in xrange(testBatchNum)]
@@ -347,19 +337,15 @@ class ReconstructInducer(object):
                 testEval.printEvaluation('Test')
                 getClustersWithFrequenciesTest(testCluster, self.data, settings.elems_to_visualize)
                 if not settings.debug:
-                    pickleClustering(testCluster, self.modelID+'_epoch'+str(epoch)+'_test')
+                    pickleClustering(testCluster, self.modelID + '_epoch' + str(epoch) + '_test')
                     if epoch % 5 == 0 and epoch > 0:
-                        picklePosteriors(testPosteriors, self.modelID+'_Posteriors_epoch'+str(epoch)+'_test')
-
+                        picklePosteriors(testPosteriors, self.modelID + '_Posteriors_epoch' + str(epoch) + '_test')
 
         endTime = time.clock()
         print 'Optimization complete'
         print 'The code run for %d epochs, with %f epochs/sec' % (epoch, 1. * epoch / (endTime - startTime))
         print >> sys.stderr, ('The code for file ' + os.path.split(__file__)[1] +
                               ' ran for %.1fs' % ((endTime - startTime)))
-
-
-
 
     def getClustersSets(self, labelTrain, trainBatchNum):
         clusters = {}
@@ -391,7 +377,6 @@ class ReconstructInducer(object):
             clusters[predictions[j]].append(self.data.getExampleRelation(j, train_dev))
         return clusters
 
-
     def getClusteredFreq(self, clusters):
         clustFreq = {}
         for i in xrange(self.relationNum):
@@ -410,7 +395,6 @@ class ReconstructInducer(object):
     def printFirstK(self, k, clusterFreq):
         for c in clusterFreq:
             print clusterFreq[c][:k]
-
 
     def getClustersWithFrequencies(self, clusterSets, data, threshold):
         for c in clusterSets:
@@ -442,9 +426,11 @@ def saveModel(model, name):
     pklFile = open(settings.models_path + name, 'wb')
     pickle.dump(model, pklFile, protocol=pklProtocol)
 
+
 def loadModel(name):
     pklFile = open(settings.models_path + name, 'rb')
     return pickle.load(pklFile)
+
 
 def loadData(args, rng, negativeSamples, relationNum, modelType):
     """
@@ -471,14 +457,14 @@ def loadData(args, rng, negativeSamples, relationNum, modelType):
     tEnd = time.time()
     print "Done (" + str(tEnd - tStart) + "s.)"
 
-    trigs = False
-
+    trigs = False  # No sampling power by default
 
     indexedDataset = DataSetManager(data, relationLexicon, rng, negativeSamples, relationNum, trigs)
 
     print "Produced indexed dataset"
 
     return indexedDataset, goldStandard
+
 
 def pickleClustering(clustering, clusteringName):
     pklProtocol = 2
@@ -490,6 +476,7 @@ def picklePosteriors(posteriors, posteriorsName):
     pklProtocol = 2
     pklFile = open(settings.clusters_path + posteriorsName, 'wb')
     pickle.dump(posteriors, pklFile, protocol=pklProtocol)
+
 
 def getClustersWithInfo(clusterSets, data, threshold):
     for c in clusterSets:
@@ -588,6 +575,7 @@ def getClustersWithFrequenciesTest(clusterSets, data, threshold):
                     count += 1
         print ''
 
+
 def getClustersWithRelationLabels(clusterSets, data, evaluation, threshold):
     for c in clusterSets:
         print c,
@@ -664,7 +652,6 @@ def getCommandArgs():
     parser.add_argument('--alpha', metavar='alpha', nargs='?', type=float, default=1.0,
                         help='alpha coefficient for scaling the entropy term')
 
-
     return parser.parse_args()
 
 
@@ -676,13 +663,11 @@ if __name__ == '__main__':
     rseed = args.seed
     rand = np.random.RandomState(seed=rseed)
 
-
     negativeSamples = args.negative_samples_number
     numberRelations = args.relations_number
     # indexedData: DataSetManager
     # goldStanderd: dict of relation label
     indexedData, goldStandard = loadData(args, rand, negativeSamples, numberRelations, args.model)
-
 
     maxEpochs = args.epochs
     learningRate = args.learning_rate
@@ -705,9 +690,6 @@ if __name__ == '__main__':
                                  model, fixedSampling, extEmb, extendedReg,
                                  frequentEval, alpha)
 
-
-
     inducer.learn()
 
     saveModel(inducer, inducer.modelName)
-
