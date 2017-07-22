@@ -315,6 +315,9 @@ if __name__ == '__main__':
     # pklFile = gzip.GzipFile(args.pickled_dataset, 'wb')
 
     pklProtocol = 2
+
+    print "FeatureDim {}".format(relationLexicon.getDimensionality())
+
     pickle.dump(featureExtrs, pklFile, protocol=pklProtocol)
     pickle.dump(relationLexicon, pklFile, protocol=pklProtocol)
     pickle.dump(dataset, pklFile, protocol=pklProtocol)
