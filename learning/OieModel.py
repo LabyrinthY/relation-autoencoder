@@ -82,6 +82,7 @@ class OieModelFunctions(object):
         relationProbs = self.relationClassifiers.compRelationProbsFunc(xFeats=xFeats)
         print "Arg projection..."
 
+        # why two entropys?
         entropy = self.alpha * -T.sum(T.log(relationProbs) * relationProbs, axis=1)  # [l,r] * [l,r] = [l]
 
         # isn't it all the same?

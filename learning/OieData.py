@@ -14,7 +14,7 @@ class MatrixDataSet:
         self.args1 = arguments1  # (l)
         self.args2 = arguments2  # (l)
         self.xFeats = argFeatures  # (l, h)
-        self.neg1 = negArgs1  # (n, l)
+        self.neg1 = negArgs1  # (n, l)  # but it's not used
         self.neg2 = negArgs2  # (n, l)
 
 

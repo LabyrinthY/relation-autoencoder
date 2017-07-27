@@ -99,11 +99,13 @@ class Bilinear(object):
                 argsEmbB=argembed2,
                 wC=weightedC)  # [l,n]
 
+        # TODO: why ab?
         u = T.concatenate([one + self.Ab[args1], one + self.Ab[args2]])
 
         logScoresP = T.log(T.nnet.sigmoid(u))
 
         allScores = logScoresP
+        # TODO: why 2*entropy?
         allScores = T.concatenate([allScores, entropy, entropy])
 
 
@@ -118,7 +120,7 @@ class Bilinear(object):
                 argsEmbA=argembed1,
                 negEmbB=negembed2,
                 wC=weightedC)
-
+        #Todo: why take these biases?
         g = T.concatenate([negOne + self.Ab[neg1].dimshuffle(1, 0),
             negTwo + self.Ab[neg2].dimshuffle(1, 0)])
         logScores = T.log(T.nnet.sigmoid(-g))

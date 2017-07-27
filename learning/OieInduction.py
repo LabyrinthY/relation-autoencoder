@@ -319,8 +319,9 @@ class ReconstructInducer(object):
 
             if validDataNP is not None and testDataNP is not None:
 
-                validCluster = self.getClustersSets(labelValid, validBatchNum)
+                validCluster = self.getClustersSets(labelValid, validBatchNum)  # type: dict{int, set(int)}
                 posteriorsValid = [labelValid(i)[1] for i in xrange(validBatchNum)]
+                # probabilities of each example
                 validPosteriors = [item for sublist in posteriorsValid for item in sublist]
                 validEval.createResponse(validCluster)
                 validEval.printEvaluation('Validation')
@@ -348,10 +349,17 @@ class ReconstructInducer(object):
                               ' ran for %.1fs' % ((endTime - startTime)))
 
     def getClustersSets(self, labelTrain, trainBatchNum):
+        """
+
+        :param labelTrain: ([l],[l,r]), label of each example, probabilities
+        :param trainBatchNum:  number of training batch, len/batch_size
+        :return: dict of sets,Dict[int, Set[int]], stands for each cluster contains what examples
+        """
         clusters = {}
         for i in xrange(self.relationNum):
             clusters[i] = set()
         predictionsTrain = [labelTrain(i)[0] for i in xrange(trainBatchNum)]
+        # all predictions in dataset
         predictions = [item for sublist in predictionsTrain for item in sublist]  # returns the flatten() list
         for j in xrange(len(predictions)):
             clusters[predictions[j]].add(j)

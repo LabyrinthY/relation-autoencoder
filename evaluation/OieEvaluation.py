@@ -50,8 +50,8 @@ class singleLabelClusterEvaluation:
 
     def b3TotalElementRecall(self):
         totalRecall = 0.0
-        for c in self.responseSets:
-            for r in self.responseSets[c]:
+        for c in self.responseSets:  # relation
+            for r in self.responseSets[c]:  # example
                 if r in self.assessableElemSet:
                     totalRecall += self.b3recall(self.responseSets[c], self.findCluster(r, self.referenceSets))
 
@@ -84,7 +84,9 @@ class singleLabelClusterEvaluation:
         numElem = 0
         for c in response:
             if len(response[c]) > 0:
+                # todo: is this the number of elements?
                 numElem += len(response[c])
+                # todo: is this identical to response?
                 responseSets[c] = set(response[c])
 
         return numElem, responseSets
@@ -146,6 +148,7 @@ class singleLabelClusterEvaluation:
         referenceSets = {}
         assessableElems = set()
         for rel in relations:
+            # relations: list of words
             if relations[rel][0] != '':
                 # print 'category', category
                 assessableElems.add(rel)
