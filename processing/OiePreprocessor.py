@@ -185,6 +185,7 @@ def loadExamples(fileName):
     with open(fileName, 'r') as fp:
         relationExamples = []
         for line in fp:
+            # TODO: here need line = line.strip
             line.strip()
             if len(line) == 0 or len(line.split()) == 0:
                 raise IOError

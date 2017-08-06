@@ -18,6 +18,8 @@ class singleLabelClusterEvaluation:
                 self.referenceSets, self.assessableElemSet = self.createReferenceSets(referencePath)
 
         else:
+            # referenceSets: Dict of [first word, set of relations with same first word]
+            # assessableElemSet: Set of list of relation label words
             self.referenceSets, self.assessableElemSet = self.createReferenceSetsFromData(referencePath)
             # print self.referenceSets
             # print self.assessableElemSet
@@ -33,6 +35,12 @@ class singleLabelClusterEvaluation:
         return len(response_a.intersection(reference_a)) / float(len(response_a.intersection(self.assessableElemSet)))
 
     def b3recall(self, response_a, reference_a):
+        """
+
+        :param response_a: prediction cluster that contains a
+        :param reference_a: true cluster that contains a
+        :return: recall of the two clusters
+        """
         return len(response_a.intersection(reference_a)) / float(len(reference_a))
 
 
@@ -50,8 +58,8 @@ class singleLabelClusterEvaluation:
 
     def b3TotalElementRecall(self):
         totalRecall = 0.0
-        for c in self.responseSets:  # relation
-            for r in self.responseSets[c]:  # example
+        for c in self.responseSets:  # relation id
+            for r in self.responseSets[c]:  # example id
                 if r in self.assessableElemSet:
                     totalRecall += self.b3recall(self.responseSets[c], self.findCluster(r, self.referenceSets))
 
@@ -82,11 +90,11 @@ class singleLabelClusterEvaluation:
     def createResponseSets(self, response):
         responseSets = {}
         numElem = 0
-        for c in response:
+        for c in response:  # c is relation id
             if len(response[c]) > 0:
                 # todo: is this the number of elements?
                 numElem += len(response[c])
-                # todo: is this identical to response?
+                # todo: is this identical to response?, because respones[c] is a set of example id
                 responseSets[c] = set(response[c])
 
         return numElem, responseSets
@@ -144,13 +152,17 @@ class singleLabelClusterEvaluation:
 
 
     def createReferenceSetsFromData(self, relations):
+        """
+
+        :param relations: ReconstructInducer.goldStandard
+        :return:
+        """
         self.relations = relations
-        referenceSets = {}
-        assessableElems = set()
-        for rel in relations:
-            # relations: list of words
-            if relations[rel][0] != '':
-                # print 'category', category
+        referenceSets = {}  # index rel-example id by it's label's first word
+        assessableElems = set()  # set of rel-example id,
+        for rel in relations:  # example id
+            # relations[rel]: list of words
+            if relations[rel][0] != '':  # label is not none
                 assessableElems.add(rel)
                 if relations[rel][0] in referenceSets:
                     referenceSets[relations[rel][0]].add(rel)
@@ -159,6 +171,12 @@ class singleLabelClusterEvaluation:
         return referenceSets, assessableElems
 
     def findCluster(self, a, setsDictionary):
+        """
+        find the cluster that contains the example
+        :param a:  rel-example id, who has labeled relation
+        :param setsDictionary: self.referenceSets
+        :return: Set[int], cluster of example set
+        """
         foundClusters = []
         for c in setsDictionary:
             if a in setsDictionary[c]:
@@ -212,7 +230,7 @@ class singleLabelClusterEvaluation:
 
         recB3 = self.b3TotalElementRecall()
         precB3 = self.b3TotalElementPrecision()
-        betasquare = math.pow(0.5, 2)
+        betasquare = math.pow(0.5, 2)  # why not just 0.25
         if recB3 == 0.0 and precB3 == 0.0:
             F1B3 = 0.0
             F05B3 = 0.0
