@@ -101,7 +101,7 @@ class OieModelFunctions(object):
         resError = -T.mean(allScores)
         print "Done with building the graph..."
         # resError = theano.printing.Print("resError ")(resError)
-        return resError
+        return resError, entropy, relationProbs, allScores
 
 
 

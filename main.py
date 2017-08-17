@@ -12,7 +12,7 @@ def creat_dataset():
         os.system(command)
 
 def learn():
-    command = "python -m learning.OieInduction --pickled_dataset {} --model_name discrete-autoencoder --model AC --optimization 1 --epochs 10 --batch_size 100 --relations_number 10 --negative_samples_number 5 --l2_regularization 0.1 --alpha 0.1 --seed 2 --embed_size 10 --learning_rate 0.1".format(settings.data_input)
+    command = "python -m learning.OieInduction --pickled_dataset {} --model_name discrete-autoencoder --model A --optimization 0 --epochs 10 --batch_size 100 --relations_number 10 --negative_samples_number 10 --l2_regularization 0.1 --alpha 0.1 --seed 2 --embed_size 10 --learning_rate 1".format(settings.data_input)
 
     print command
     os.system(command)

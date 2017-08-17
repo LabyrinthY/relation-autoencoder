@@ -21,16 +21,26 @@ pkl_protocol = 2
 
 
 # ---------- Directories ----------
-raw_data_dir = {"root": "/home/data/corpora/RlVAEData/utf-8",
-                }
-raw_data_dir['train'] = os.path.join(raw_data_dir['root'], 'candidate-2000s.context.filtered.triples.pathfiltered.pos'
-                                                           '.single-relation.sortedondate.txt')
-raw_data_dir['dev'] = os.path.join(raw_data_dir['root'], 'candidate-2000s.context.filtered.triples.pathfiltered.pos'
-                                                           '.single-relation.sortedondate.validation.20%.txt')
-raw_data_dir['test'] = os.path.join(raw_data_dir['root'], 'candidate-2000s.context.filtered.triples.pathfiltered.pos'
-                                                         '.single-relation.sortedondate.test.80%.txt')
+if False:
+    raw_data_dir = {"root": "/home/data/corpora/RlVAEData/utf-8",
+                    }
+    raw_data_dir['train'] = os.path.join(raw_data_dir['root'], 'candidate-2000s.context.filtered.triples.pathfiltered.pos'
+                                                               '.single-relation.sortedondate.txt')
+    raw_data_dir['dev'] = os.path.join(raw_data_dir['root'], 'candidate-2000s.context.filtered.triples.pathfiltered.pos'
+                                                               '.single-relation.sortedondate.validation.20%.txt')
+    raw_data_dir['test'] = os.path.join(raw_data_dir['root'], 'candidate-2000s.context.filtered.triples.pathfiltered.pos'
+                                                             '.single-relation.sortedondate.test.80%.txt')
 
-data_root = "/data/yan/relation-autoencoder/"
+    data_root = "/data/yan/relation-autoencoder/"
+else:
+
+    raw_data_dir = {"root": "./data",
+                    }
+    raw_data_dir['train'] = os.path.join(raw_data_dir['root'], 'data-sample.txt')
+    raw_data_dir['dev'] = os.path.join(raw_data_dir['root'], 'data-sample.txt')
+    raw_data_dir['test'] = os.path.join(raw_data_dir['root'], 'data-sample.txt',)
+
+    data_root = './data'
 
 data_default_settings = os.path.join(data_root, "data.pkl")
 

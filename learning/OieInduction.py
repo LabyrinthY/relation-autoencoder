@@ -116,11 +116,12 @@ class ReconstructInducer(object):
 
         print "Starting to build train err computation (not compiling it yet)"
         adjust = float(batchSize) / float(trainDataNP.args1.shape[0])  # 1/batchnum
-
-        cost = self.modelFunc.buildTrainErrComputation(batchSize, self.data.getNegNum(),
-                                                       xFeats, args1, args2, neg1, neg2) + \
-               (lambda1 * self.modelFunc.L1 * adjust) + \
-               (lambda2 * self.modelFunc.L2 * adjust)
+        print "Adjust:", adjust, trainDataNP.args1.shape[0]
+        resErr,entropy, relationProbs, allScores = self.modelFunc.buildTrainErrComputation(batchSize, self.data.getNegNum(),
+                xFeats, args1, args2, neg1, neg2)
+        cost = resErr+\
+                (lambda1 * self.modelFunc.L1 * adjust) + \
+                (lambda2 * self.modelFunc.L2 * adjust)
 
         if self.optimization == 1:
             from learning.Optimizers import AdaGrad
@@ -141,7 +142,14 @@ class ReconstructInducer(object):
         print "Compiling train function..."
 
         trainModel = theano.function(inputs=[batchIdx, neg1, neg2],
-                                     outputs=cost,
+                                     outputs=[
+                                         cost,
+                                         (lambda1 * self.modelFunc.L1 * adjust)+(lambda2 * self.modelFunc.L2 * adjust),
+                                         entropy,
+                                         relationProbs,
+                                         allScores,
+                                         ],
+
                                      updates=updates,
                                      givens={
                                          xFeats: trainData.xFeats[batchIdx * batchSize: (batchIdx + 1) * batchSize],
@@ -266,9 +274,11 @@ class ReconstructInducer(object):
                 else:
                     neg1 = trainDataNP.neg1[:, idx * self.batchSize: (idx + 1) * self.batchSize]
                     neg2 = trainDataNP.neg2[:, idx * self.batchSize: (idx + 1) * self.batchSize]
-
-                ls = trainModel(idx, neg1, neg2)
+                ls, regular, entropy, relProbs, allScores = trainModel(idx, neg1, neg2)
                 err += ls
+
+                print idx, ls, "Entropy:",np.mean(entropy),entropy.shape, "regular",regular,
+                print "RelProb",np.mean(relProbs),relProbs.shape,"All",np.mean(allScores),allScores.shape
 
                 # self.modelFunc.argProjector.normalize()
                 # print('.'),
@@ -325,7 +335,7 @@ class ReconstructInducer(object):
                 validPosteriors = [item for sublist in posteriorsValid for item in sublist]
                 validEval.createResponse(validCluster)
                 validEval.printEvaluation('Validation')
-                getClustersWithFrequenciesValid(validCluster, self.data, settings.elems_to_visualize)
+                #getClustersWithFrequenciesValid(validCluster, self.data, settings.elems_to_visualize)
                 if not settings.debug:
                     pickleClustering(validCluster, self.modelID + '_epoch' + str(epoch) + '_valid')
                     if epoch % 5 == 0 and epoch > 0:
@@ -336,7 +346,7 @@ class ReconstructInducer(object):
                 testPosteriors = [item for sublist in posteriorsTest for item in sublist]
                 testEval.createResponse(testCluster)
                 testEval.printEvaluation('Test')
-                getClustersWithFrequenciesTest(testCluster, self.data, settings.elems_to_visualize)
+                #getClustersWithFrequenciesTest(testCluster, self.data, settings.elems_to_visualize)
                 if not settings.debug:
                     pickleClustering(testCluster, self.modelID + '_epoch' + str(epoch) + '_test')
                     if epoch % 5 == 0 and epoch > 0:

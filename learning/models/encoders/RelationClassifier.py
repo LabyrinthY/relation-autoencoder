@@ -23,11 +23,17 @@ class IndependentRelationClassifiers(object):
         # print str(1.0 / w_bound)
         print 'low bound =', settings.low, 'high bound =', settings.high  # -1e-3, 1e-3
         # [featureDim, relationNum]
-        self.W = theano.shared(np.asarray(rng.uniform(
-            low=settings.low,
-            high=settings.high,
-            size=(self.h, self.r)), dtype=theano.config.floatX),  # @UndefinedVariable
-            name='W', borrow=True)
+        self.W = theano.shared(
+                np.asarray(
+                    #np.ones(
+                        #shape=(self.h, self.r)
+                    rng.uniform(
+                        low=settings.low,
+                        high=settings.high,
+                        size=(self.h, self.r)
+                        ),
+                    dtype=theano.config.floatX),  # @UndefinedVariable
+                name='W', borrow=True)
         # npW = np.zeros((3,3),dtype=theano.config.floatX)
         # npW[0,0] = 1.e+40
         # npW[1,1] = 1.e+40

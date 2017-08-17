@@ -29,12 +29,12 @@ class MatrixDataSetNoEncoding:
 class DataSetManager:
     """
     Attributes:
-        'id2Arg', 
+        'id2Arg',
         'negSamplesNum', int: neg sample number
-        'negSamplingCum', list of float: 
+        'negSamplingCum', list of float:
         'negSamplingDistr', list of float:
         'negSamplingDistrPower', bool:
-        'validExs',  
+        'validExs',
         'featureLex', OiePreprocessor.FeatureLexicon
         'rng', : random state generator
         'arg2Id', dict: entity string to id
@@ -76,7 +76,8 @@ class DataSetManager:
             self.testExs = None
 
     def _sample(self, cutoffs):
-        idx = cutoffs.searchsorted(self.rng.uniform(0, cutoffs[-1]))
+        idx = 0
+        #idx = cutoffs.searchsorted(self.rng.uniform(0, cutoffs[-1]))
         return idx
 
     def _sample1(self, distr):
@@ -168,13 +169,13 @@ class DataSetManager:
 
     def getArgVocSize(self):
         """
-        :return: int - entity number 
+        :return: int - entity number
         """
         return len(self.arg2Id)
 
     def getDimensionality(self):
         """
-        :return: int - feature dimension 
+        :return: int - feature dimension
         """
         return self.featureLex.getDimensionality()
 
