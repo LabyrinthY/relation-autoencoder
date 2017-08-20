@@ -1,6 +1,6 @@
 __author__ = 'diego'
 
-models_path = ''
+models_path = '/home/data/yan/models/relation-autoencoder'
 clusters_path = ''
 
 lda_pairs_path = ''
@@ -21,8 +21,8 @@ pkl_protocol = 2
 
 
 # ---------- Directories ----------
-if False:
-    raw_data_dir = {"root": "/home/data/corpora/RlVAEData/utf-8",
+if True:
+    raw_data_dir = {"root": "/home/data/corpora/RlVAEData/",
                     }
     raw_data_dir['train'] = os.path.join(raw_data_dir['root'], 'candidate-2000s.context.filtered.triples.pathfiltered.pos'
                                                                '.single-relation.sortedondate.txt')
@@ -31,7 +31,7 @@ if False:
     raw_data_dir['test'] = os.path.join(raw_data_dir['root'], 'candidate-2000s.context.filtered.triples.pathfiltered.pos'
                                                              '.single-relation.sortedondate.test.80%.txt')
 
-    data_root = "/data/yan/relation-autoencoder/"
+    data_root = "/home/data/yan/relation-autoencoder/"
 else:
 
     raw_data_dir = {"root": "./data",
@@ -44,8 +44,11 @@ else:
 
 data_default_settings = os.path.join(data_root, "data.pkl")
 
-data_input = data_default_settings
+#data_input = data_default_settings
+def data_by_threshold(th):
+    return os.path.join(data_root, "data_{}.pkl".format(str(th)))
 
+data_input = data_by_threshold
 
 #--------- Parameters ------------------------------
 low = -1e-3

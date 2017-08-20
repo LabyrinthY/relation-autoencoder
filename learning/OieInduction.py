@@ -277,8 +277,8 @@ class ReconstructInducer(object):
                 ls, regular, entropy, relProbs, allScores = trainModel(idx, neg1, neg2)
                 err += ls
 
-                print idx, ls, "Entropy:",np.mean(entropy),entropy.shape, "regular",regular,
-                print "RelProb",np.mean(relProbs),relProbs.shape,"All",np.mean(allScores),allScores.shape
+                #print idx, ls, "Entropy:",np.mean(entropy),entropy.shape, "regular",regular,
+                #print "RelProb",np.mean(relProbs),relProbs.shape,"All",np.mean(allScores),allScores.shape
 
                 # self.modelFunc.argProjector.normalize()
                 # print('.'),
@@ -335,7 +335,7 @@ class ReconstructInducer(object):
                 validPosteriors = [item for sublist in posteriorsValid for item in sublist]
                 validEval.createResponse(validCluster)
                 validEval.printEvaluation('Validation')
-                #getClustersWithFrequenciesValid(validCluster, self.data, settings.elems_to_visualize)
+                getClustersWithFrequenciesValid(validCluster, self.data, settings.elems_to_visualize)
                 if not settings.debug:
                     pickleClustering(validCluster, self.modelID + '_epoch' + str(epoch) + '_valid')
                     if epoch % 5 == 0 and epoch > 0:

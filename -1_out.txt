@@ -1,0 +1,1 @@
+python -m learning.OieInduction --pickled_dataset <function data_by_threshold at 0x7fa0ef478578> --model_name discrete-autoencoder --model A --optimization 0 --epochs 10 --batch_size 100 --relations_number 10 --negative_samples_number 10 --l2_regularization 0.1 --alpha 0.1 --seed 2 --embed_size 10 --learning_rate 1
